@@ -1,0 +1,56 @@
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import Chart from '../components/chart';
+import GoogleMap from '../components/google_map';
+
+//containery mluvi s reduxem, componenty ne, ty jen berou parametry od rodicu
+
+class WeatherList extends Component{
+  renderWeather(cityData){
+    const name = cityData.city.name;
+    const temps = cityData.list.map(weather => weather.main.temp);//iterace json objektu [temp, temp,temp. temp]
+    const pressures = cityData.list.map(weather =>weather.main.pressure);
+    const humidities = cityData.list.map(weather =>weather.main.humidity);
+    const {lon, lat } = cityData.city.coord; //=cityData.city.coord.lon a lat
+
+    return(
+      <tr key={name}>
+        <td><GoogleMap lon={lon} lat={lat}/></td>
+        <td><Chart data={temps} color="orange" units="K"/></td>
+        <td><Chart data={pressures} color="green" units="hPa"/></td>
+        <td><Chart data={humidities} color="black" units="%"/></td>
+      </tr>
+    )
+  }
+
+  //data={pressures} = props.data = {pressures} v komponente chart
+
+  render(){
+    return(
+      <table className="table table-hover">
+        <thead>
+          <tr>
+            <th>City</th>
+            <th>Temperature (K)</th>
+            <th>Preasure (hPa)</th>
+            <th>Humidity (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {this.props.weather.map(this.renderWeather)}
+        </tbody>
+      </table>
+    );
+  }
+}
+//props.weather jsou nyni pole dle reduceru
+//map vraci nove pole a do parametru volani funkce prida kazdy element, zde 1
+
+function mapStateToProps({ weather }){
+  //{weather} = const weather = state.weather
+  return { weather }; //globalni state.weather je z kombine reduceru WeatherReducer
+  //pokud {weather} = weather.weather
+}
+
+export default connect(mapStateToProps)(WeatherList);
+//exportujeme az connectlou verzi weatherlistu ktera ma state napojenou na global state a weather reducer
